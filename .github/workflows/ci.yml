@@ -43,7 +43,20 @@ jobs:
             yunnysunny/pandoc-pdf:latest
           build-args: |
             VERSION=${{ env.VERSION }}
-      
+      - name: Test
+        run: |
+          cd test
+          docker run  --volume "./:/data" --rm yunnysunny/pandoc-pdf:latest \
+          --metadata-file=metadata.yaml \
+          a1_node_utils.md \
+          a2_bibliography.md \
+          -o gen.pdf --pdf-engine=weasyprint \
+          --table-of-contents --toc-depth=4
+      - name: Upload result of Test
+        uses: actions/upload-artifact@v2
+        with:
+          name: result-pdf
+          path: ./test/gen.pdf
       - name: Update core description
         uses: peter-evans/dockerhub-description@v2
         if: ${{ github.event_name != 'pull_request' }}
